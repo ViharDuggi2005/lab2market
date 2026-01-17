@@ -34,7 +34,7 @@ export default function Login() {
         password: form.password,
       });
 
-      loginUser(res.data.token, res.data.role);
+      loginUser(res.data.token, res.data.role, res.data.name);
       window.location.href = "/dashboard";
     } catch (err) {
       setError(

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import API from "../../api/axios";
 
-export default function ResearcherProjects() {
+export default function ResearcherProjects({ refreshTrigger }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(null); // project being edited
@@ -22,6 +22,14 @@ export default function ResearcherProjects() {
 
   useEffect(() => {
     fetchMy();
+  }, [refreshTrigger]);
+
+  useEffect(() => {
+    const handleProjectCreated = () => fetchMy();
+    window.addEventListener("projectCreated", handleProjectCreated);
+    return () => {
+      window.removeEventListener("projectCreated", handleProjectCreated);
+    };
   }, []);
 
   const handleDelete = async (id) => {
@@ -55,6 +63,8 @@ export default function ResearcherProjects() {
         trl: Number(updated.trl),
         ipStatus: updated.ipStatus,
         fundingRequired: Number(updated.fundingRequired || 0),
+        sector: updated.sector,
+        location: updated.location,
       };
       await API.put(`/projects/${updated._id}`, payload);
       // update locally
@@ -99,7 +109,7 @@ export default function ResearcherProjects() {
               <div className="project-meta">
                 TRL {p.trl} · {p.ipStatus || "IP: -"}
               </div>
-              <p className="project-desc">{p.abstract}</p>
+              <p className="project-desc line-clamp-3">{p.abstract}</p>
               <div className="project-actions">
                 <button className="btn-secondary" onClick={() => handleEdit(p)}>
                   Edit
@@ -179,13 +189,19 @@ export default function ResearcherProjects() {
 
                   <div className="form-row">
                     <label className="form-label">IP Status</label>
-                    <input
+                    <select
                       className="form-input"
                       value={editing.ipStatus}
                       onChange={(e) =>
                         setEditing({ ...editing, ipStatus: e.target.value })
                       }
-                    />
+                    >
+                      <option value="">Select IP Status</option>
+                      <option value="Patented">Patented</option>
+                      <option value="Not yet Patented">Not yet Patented</option>
+                      <option value="Still in Process">Still in Process</option>
+                      <option value="None">None</option>
+                    </select>
                   </div>
 
                   <div className="form-row">

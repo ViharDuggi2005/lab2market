@@ -8,6 +8,10 @@ export default function Register() {
     email: "",
     password: "",
     role: "researcher",
+    institution: "",
+    googleScholar: "",
+    scopusLink: "",
+    phoneNumber: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +40,7 @@ export default function Register() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="space-y-4 max-w-md mx-auto p-6 rounded-lg shadow-md border border-gray-200"
+      className="space-y-4"
       aria-label="register form"
     >
       {error && (
@@ -47,8 +51,9 @@ export default function Register() {
 
       {/* Name */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Name
+        <label className="block text-sm font-medium text-gray-700">
+          <span>Name</span>
+          <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -56,15 +61,16 @@ export default function Register() {
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
                      focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
         />
       </div>
 
       {/* Email */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Email
+        <label className="block text-sm font-medium text-gray-700">
+          <span>Email</span>
+          <span className="text-red-500">*</span>
         </label>
         <input
           type="email"
@@ -72,15 +78,16 @@ export default function Register() {
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
           required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
                      focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
         />
       </div>
 
       {/* Password */}
       <div>
-        <label className="mb-1 block text-sm font-medium text-gray-700">
-          Password
+        <label className="block text-sm font-medium text-gray-700">
+          <span>Password</span>
+          <span className="text-red-500">*</span>
         </label>
         <input
           type="password"
@@ -88,25 +95,92 @@ export default function Register() {
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
           required
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
                      focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
         />
       </div>
 
-      {/* Role */}
+      <div className="grid grid-cols-2 gap-4">
+        {/* Role */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            <span>Role</span>
+            <span className="text-red-500">*</span>
+          </label>
+          <select
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+            className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
+                       focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9] bg-white"
+          >
+            <option value="researcher">Researcher</option>
+            <option value="investor">Investor</option>
+          </select>
+        </div>
+
+        {/* Institution */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            <span>Institution</span>
+            {(form.role === "researcher" || form.role === "investor") && (
+              <span className="text-red-500">*</span>
+            )}
+          </label>
+          <input
+            type="text"
+            placeholder="Your institution"
+            value={form.institution}
+            onChange={(e) => setForm({ ...form, institution: e.target.value })}
+            required={form.role === "researcher" || form.role === "investor"}
+            className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
+                       focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
+          />
+        </div>
+      </div>
+
+      {/* Google Scholar */}
       <div>
         <label className="mb-1 block text-sm font-medium text-gray-700">
-          Role
+          Google Scholar
         </label>
-        <select
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm
-                     focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9] bg-white"
-        >
-          <option value="researcher">Researcher</option>
-          <option value="investor">Investor</option>
-        </select>
+        <input
+          type="url"
+          placeholder="https://scholar.google.com/citations?user=..."
+          value={form.googleScholar}
+          onChange={(e) => setForm({ ...form, googleScholar: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
+                     focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
+        />
+      </div>
+
+      {/* Scopus link */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Scopus profile
+        </label>
+        <input
+          type="url"
+          placeholder="https://www.scopus.com/authid/detail.uri?authorId=..."
+          value={form.scopusLink}
+          onChange={(e) => setForm({ ...form, scopusLink: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
+                     focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
+        />
+      </div>
+
+      {/* Phone Number */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-gray-700">
+          Phone Number
+        </label>
+        <input
+          type="tel"
+          placeholder="Your phone number"
+          value={form.phoneNumber}
+          onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+          className="w-full rounded-md border border-gray-300 px-4 py-2.5 text-sm shadow-sm
+                     focus:border-[#2a73d9] focus:ring-1 focus:ring-[#2a73d9]"
+        />
       </div>
 
       {/* Submit Button */}
@@ -114,7 +188,7 @@ export default function Register() {
         type="submit"
         disabled={loading}
         className="w-full rounded-md bg-[#2a73d9] px-4 py-2 text-sm font-semibold text-white shadow-sm
-                   hover:bg-[#1f7ea3] disabled:opacity-60"
+                   hover:bg-[#2a73d9] disabled:opacity-60 mt-2"
       >
         {loading ? "Registering..." : "Register"}
       </button>

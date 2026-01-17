@@ -15,16 +15,61 @@ export default function Navbar() {
         <div className="text-xl font-bold text-[#2a73d9]">lab2market</div>
 
         <div className="hidden md:flex flex-1 justify-end gap-6 pr-6 text-gray-800">
-          <Link to="/">Home</Link>
+          <Link to="/" className={location.pathname === "/" ? "font-bold" : ""}>
+            Home
+          </Link>
           {user && user.role === "researcher" && (
-            <Link to="/dashboard">Researcher Dashboard</Link>
+            <Link
+              to="/dashboard"
+              className={location.pathname === "/dashboard" ? "font-bold" : ""}
+            >
+              Researcher Dashboard
+            </Link>
           )}
           {user && user.role === "investor" && (
-            <Link to="/dashboard">Investor Dashboard</Link>
+            <Link
+              to="/dashboard"
+              className={location.pathname === "/dashboard" ? "font-bold" : ""}
+            >
+              Investor Dashboard
+            </Link>
           )}
-          <Link to="#">Explore Projects</Link>
-          <Link to="#">Admin</Link>
-          <Link to="#">Compliance</Link>
+          {user && (user.role === "investor" || user.role === "researcher") && (
+            <Link
+              to="/edit-profile"
+              className={
+                location.pathname === "/edit-profile" ? "font-bold" : ""
+              }
+            >
+              Edit Profile
+            </Link>
+          )}
+          {user && user.role === "investor" && (
+            <Link
+              to="/interested-projects"
+              className={
+                location.pathname === "/interested-projects" ? "font-bold" : ""
+              }
+            >
+              Interested Projects
+            </Link>
+          )}
+          {user && user.role === "researcher" && (
+            <Link
+              to="#"
+              className={location.pathname === "#" ? "font-bold" : ""}
+            >
+              Explore Projects
+            </Link>
+          )}
+          {user && user.role === "admin" && (
+            <Link
+              to="#"
+              className={location.pathname === "#" ? "font-bold" : ""}
+            >
+              Admin
+            </Link>
+          )}
         </div>
 
         <div className="flex gap-3">
@@ -77,10 +122,6 @@ export default function Navbar() {
               >
                 <span className="btn-icon">✉️</span>
                 <span> View Messages</span>
-              </button>
-              <button className="action-btn outline">
-                <span className="btn-icon">📅</span>
-                <span> Book Services</span>
               </button>
             </div>
           </div>

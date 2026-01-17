@@ -5,11 +5,13 @@ import CreateProject from "../components/Projects/CreateProject";
 import ProjectList from "../components/Projects/ProjectList";
 import ResearcherProjects from "../components/Projects/ResearcherProjects";
 import Chat from "../components/Chat";
+import SECTORS from "../constants/sectors";
 
 export default function Dashboard() {
   const { user, logoutUser } = useContext(AuthContext);
   const [showModal, setShowModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [refreshProjects, setRefreshProjects] = useState(0);
 
   if (!user) return <p>Please login</p>;
 
@@ -28,12 +30,28 @@ export default function Dashboard() {
 
   useEffect(() => {
     const handler = () => setShowModal(true);
-    const chatHandler = () => setShowChat(true);
+    const chatHandler = (e) => {
+      setShowChat(true);
+      // Forward the researcher ID to the Chat component
+      if (e.detail?.researcherId) {
+        // Wait a bit longer to ensure messages are fetched
+        setTimeout(() => {
+          window.dispatchEvent(
+            new CustomEvent("selectChatByResearcher", {
+              detail: { researcherId: e.detail.researcherId },
+            })
+          );
+        }, 500);
+      }
+    };
+    const projectCreatedHandler = () => setRefreshProjects((prev) => prev + 1);
     window.addEventListener("openCreateModal", handler);
     window.addEventListener("openChatModal", chatHandler);
+    window.addEventListener("projectCreated", projectCreatedHandler);
     return () => {
       window.removeEventListener("openCreateModal", handler);
       window.removeEventListener("openChatModal", chatHandler);
+      window.removeEventListener("projectCreated", projectCreatedHandler);
     };
   }, []);
 
@@ -70,7 +88,6 @@ export default function Dashboard() {
           <div className="investor-container">
             <div className="search-panel">
               <div className="search-panel-heading">
-                <span className="search-icon">🔍</span>
                 <h3>Search & Browse Projects</h3>
               </div>
 
@@ -84,15 +101,28 @@ export default function Dashboard() {
                 />
               </div>
 
-              <div className="search-filters-grid">
-                <div className="filter-col">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "16px",
+                  alignItems: "start",
+                }}
+              >
+                <div className="filter-col" style={{ gridRow: "span 3" }}>
                   <label className="form-label">Sector</label>
-                  <select id="invest-sector" className="filter-select">
-                    <option>All Sectors</option>
-                    <option>Biotech</option>
-                    <option>Energy</option>
-                    <option>ICT</option>
-                  </select>
+                  <div className="checkbox-group">
+                    {SECTORS.map((s) => (
+                      <label key={s} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          value={s}
+                          className="sector-checkbox"
+                        />{" "}
+                        {s}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="filter-col">
@@ -114,9 +144,35 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div className="filter-action">
+                <div className="filter-col">
+                  <label className="form-label">Institution</label>
+                  <input
+                    id="invest-institution"
+                    className="filter-input"
+                    placeholder="Enter institution name"
+                  />
+                </div>
+
+                <div className="filter-action" style={{ gridColumn: "span 2" }}>
                   <button className="search-button" id="invest-search-btn">
                     Search Projects
+                  </button>
+                  <button
+                    type="button"
+                    className="reset-button"
+                    onClick={() => {
+                      document.getElementById("invest-search").value = "";
+                      document
+                        .querySelectorAll(".sector-checkbox")
+                        .forEach((cb) => (cb.checked = false));
+                      document.getElementById("invest-trl").value =
+                        "All Levels";
+                      document.getElementById("invest-location").value = "";
+                      document.getElementById("invest-institution").value = "";
+                      window.dispatchEvent(new CustomEvent("filterApplied"));
+                    }}
+                  >
+                    Reset Filters
                   </button>
                 </div>
               </div>
@@ -138,7 +194,9 @@ export default function Dashboard() {
 
         {user.role === "admin" && <ProjectList />}
 
-        {user.role === "researcher" && <ResearcherProjects />}
+        {user.role === "researcher" && (
+          <ResearcherProjects refreshTrigger={refreshProjects} />
+        )}
 
         {/* Chat Modal */}
         {showChat && <Chat closeChat={() => setShowChat(false)} />}

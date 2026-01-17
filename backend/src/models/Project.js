@@ -7,6 +7,8 @@ const ProjectSchema = new mongoose.Schema(
     trl: Number,
     ipStatus: String,
     fundingRequired: Number,
+    sector: String,
+    location: String,
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

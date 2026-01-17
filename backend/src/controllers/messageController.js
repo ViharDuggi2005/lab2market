@@ -9,8 +9,8 @@ exports.sendMessage = async (req, res) => {
       content,
     });
     const populatedMessage = await Message.findById(message._id)
-      .populate("sender", "name")
-      .populate("receiver", "name");
+      .populate("sender", "name _id")
+      .populate("receiver", "name _id");
     res.json(populatedMessage);
   } catch (err) {
     console.error("sendMessage error:", err);
@@ -23,8 +23,8 @@ exports.getMessages = async (req, res) => {
     const messages = await Message.find({
       $or: [{ sender: req.user.id }, { receiver: req.user.id }],
     })
-      .populate("sender", "name")
-      .populate("receiver", "name")
+      .populate("sender", "name _id")
+      .populate("receiver", "name _id")
       .sort({ createdAt: 1 });
     res.json(messages);
   } catch (err) {
@@ -45,6 +45,55 @@ exports.markAsRead = async (req, res) => {
     res.json({ message: "Marked as read" });
   } catch (err) {
     console.error("markAsRead error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.expressInterest = async (req, res) => {
+  try {
+    const { projectId } = req.body;
+    // Assuming we can get the project creator (researcher) from projectId
+    // For now, we'll need to fetch the project to get the creator
+    const Project = require("../models/Project");
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    const researcherId = project.createdBy;
+    const investorId = req.user.id;
+
+    // Check if a chat already exists between them
+    const existingMessage = await Message.findOne({
+      $or: [
+        { sender: investorId, receiver: researcherId },
+        { sender: researcherId, receiver: investorId },
+      ],
+    });
+
+    if (existingMessage) {
+      return res.json({
+        message: "Chat already exists",
+        researcherId: researcherId.toString(),
+      });
+    }
+
+    // Create initial message
+    const message = await Message.create({
+      sender: investorId,
+      receiver: researcherId,
+      content: `Hi! I'm interested in your project "${project.title}". Let's discuss!`,
+    });
+
+    const populatedMessage = await Message.findById(message._id)
+      .populate("sender", "name _id")
+      .populate("receiver", "name _id");
+
+    res.json({
+      message: "Interest expressed successfully",
+      chat: populatedMessage,
+      researcherId: researcherId.toString(),
+    });
+  } catch (err) {
+    console.error("expressInterest error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

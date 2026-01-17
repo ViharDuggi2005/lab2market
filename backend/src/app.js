@@ -5,8 +5,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", require("./routes/authroutes"));
-app.use("/api/projects", require("./routes/projectroutes"));
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/projects", require("./routes/projectRoutes"));
 app.use("/api/messages", require("./routes/messageRoutes"));
 
 module.exports = app;
